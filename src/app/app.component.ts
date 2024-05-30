@@ -3,6 +3,32 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import {MatIcon} from "@angular/material/icon";
 
+class Time{
+  public minutes: number = 0;
+  public seconds: number = 0;
+
+  constructor(minutes: number, seconds: number){
+    this.minutes = minutes;
+    this.seconds = seconds;
+  }
+
+  public toString(): string{
+    if(this.seconds < 10 && this.minutes < 10){
+      return `0${this.minutes}:0${this.seconds}`;
+    }
+
+    if(this.seconds < 10){
+      return `${this.minutes}:0${this.seconds}`;
+    }
+
+    if(this.minutes < 10){
+      return `0${this.minutes}:${this.seconds}`;
+    }
+
+    return `${this.minutes}:${this.seconds}`;
+  }
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -17,6 +43,7 @@ export class AppComponent {
   audio = new Audio();
   isMuted = false;
 
+  currentTime = signal(new Time(0, 0));
   audioProgress = signal(0);
 
   playAudio(): void {
@@ -27,6 +54,14 @@ export class AppComponent {
     this.audio.play();
     this.audio.addEventListener('ended', this.audioEnded.bind(this));
     this.audio.addEventListener('timeupdate', this.calculateProgress.bind(this));
+    this.audio.addEventListener('timeupdate', this.calculateTime.bind(this));
+  }
+
+  private calculateTime(event: Event): void {
+    const currentTime = (event.target as HTMLAudioElement).currentTime;
+    const minutes = Math.floor(currentTime / 60);
+    const seconds = Math.floor(currentTime % 60);
+    this.currentTime.set(new Time(minutes, seconds));
   }
 
   private calculateProgress(event: Event): void {
