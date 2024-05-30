@@ -15,6 +15,7 @@ export class AppComponent {
   isPlaying = false;
   isPaused = false;
   audio = new Audio();
+  isMuted = false;
 
   audioProgress = signal(0);
 
@@ -56,5 +57,15 @@ export class AppComponent {
     this.isPlaying = false;
     this.isPaused = false;
     this.audio.currentTime = 0;
+  }
+
+  changeVolume(event: Event): void {
+    const volume = (event.target as HTMLInputElement).value;
+    this.audio.volume = parseInt(volume, 10) / 100;
+  }
+
+  toggleMute(): void {
+    this.isMuted = !this.isMuted;
+    this.audio.muted = this.isMuted;
   }
 }
